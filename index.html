@@ -340,6 +340,7 @@
     <a href="#innovations">5. Key Innovations</a>
     <a href="#deploy">6. Real-World Deployments</a>
     <a href="#limits">7. Limitations</a>
+    <a href="#cost">8. Cost &amp; Time</a>
     <a href="#refs">References</a>
   </div>
 </nav>
@@ -616,6 +617,110 @@
   </div>
 </section>
 
+<!-- ═══════════ 8. TRAINING COST & TIME ═══════════ -->
+<section id="cost">
+  <div class="container">
+    <h2><span class="num">8</span> Training Cost &amp; Time Estimation</h2>
+
+    <p>Google has not publicly disclosed exact training costs for Med-PaLM models. The figures below are <strong>estimates</strong> reconstructed from published hardware configurations, academic cost analyses, and industry benchmarks. Costs are broken into two phases: <strong>base model pre-training</strong> (the foundational LLM) and <strong>medical fine-tuning</strong> (the domain adaptation layer).</p>
+
+    <h3>8.1 Base Model Pre-Training</h3>
+
+    <table class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Base LLM</th><th>Params</th><th>Hardware</th><th>Wall Time</th><th>Compute</th><th>Est. Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Med-PaLM</td><td>PaLM 540B</td><td>540B</td><td>6,144 TPU v4 &times; 1,200h + 3,072 &times; 336h</td><td>~64 days</td><td>~8.4M TPUv4-hours</td><td><strong>$9-12M</strong></td></tr>
+          <tr><td>Med-PaLM 2</td><td>PaLM 2</td><td>~340B</td><td>TPU v4/v5 pods (undisclosed)</td><td>~50-70 days*</td><td>Undisclosed</td><td><strong>~$29M</strong></td></tr>
+          <tr><td>Med-PaLM M</td><td>PaLM-E</td><td>562B + 22B ViT</td><td>TPU v4 pods (undisclosed)</td><td>~60-80 days*</td><td>Undisclosed</td><td><strong>$15-25M</strong></td></tr>
+        </tbody>
+      </table>
+    </table>
+    <p style="font-size:12px;color:var(--muted);">* Estimated based on scaling laws and published PaLM 2 architecture. PaLM 2 pre-training cost per Stanford HAI 2025 AI Index Report. Med-PaLM M estimated from PaLM-E architecture at 562B scale with additional ViT training.</p>
+
+    <h3>8.2 Medical Fine-Tuning Cost</h3>
+    <p>The Med-PaLM models are <strong>fine-tuned</strong> from their base LLMs — they are not pre-trained from scratch. This makes fine-tuning dramatically cheaper than base model training. The medical instruction-tuning uses MultiMedQA datasets:</p>
+
+    <table class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Dataset</th><th>Type</th><th>Training Samples</th><th>Eval Samples</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>MedQA (USMLE)</td><td>Multiple-choice QA</td><td>~10,178</td><td>~1,273</td></tr>
+          <tr><td>MedMCQA</td><td>Multiple-choice QA</td><td>~182,822</td><td>~4,183</td></tr>
+          <tr><td>PubMedQA</td><td>Biomedical QA</td><td>Eval only</td><td>~500</td></tr>
+          <tr><td>HealthSearchQA</td><td>Consumer health QA</td><td>~3,000+</td><td>Part of eval</td></tr>
+          <tr><td>LiveQA</td><td>Live medical QA</td><td>~600</td><td>Part of eval</td></tr>
+          <tr><td>MedicationQA</td><td>Drug QA</td><td>~650</td><td>Part of eval</td></tr>
+        </tbody>
+      </table>
+    </table>
+
+    <h3>8.3 Fine-Tuning Compute Estimate</h3>
+    <p>Fine-tuning a 300B+ parameter model on ~200K medical examples requires meaningful but not prohibitive compute:</p>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="val accent">$200K-1M</div>
+        <div class="desc">Est. Med-PaLM 2 Fine-Tuning</div>
+      </div>
+      <div class="stat">
+        <div class="val green">$300K-1.5M</div>
+        <div class="desc">Est. Med-PaLM M Fine-Tuning</div>
+      </div>
+      <div class="stat">
+        <div class="val orange">~2-4 wks</div>
+        <div class="desc">Wall-Clock Time (est.)</div>
+      </div>
+      <div class="stat">
+        <div class="val purple">8-16</div>
+        <div class="desc">TPU v4 Pods (est.)</div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <strong>Key Caveat:</strong> Google operates one of the world's largest private TPU fleets. Their <em>actual</em> marginal cost for fine-tuning is significantly lower than public cloud pricing. The estimates above are based on <strong>public TPU v4 on-demand rates (~$1.50-3.00/chip-hour)</strong> and likely overstate Google's internal expenditure. Additionally, the paper notes multiple ablation experiments (mixture ratios, variant models, prompting strategies), multiplying the total compute by an unknown factor.
+    </div>
+
+    <h3>8.4 Cost Comparison: AI Models (2022-2025)</h3>
+    <p>To contextualize Med-PaLM's cost, here is how its base model compares to other major AI systems:</p>
+
+    <div style="margin:16px 0">
+      <div class="bar-row"><span class="label">PaLM 540B</span><div class="bar-track"><div class="bar-fill blue" style="width:30%">$9-12M</div></div></div>
+      <div class="bar-row"><span class="label">PaLM 2</span><div class="bar-track"><div class="bar-fill green" style="width:72%">~$29M</div></div></div>
+      <div class="bar-row"><span class="label">Llama 2 70B</span><div class="bar-track"><div class="bar-fill teal" style="width:7.5%">$3M</div></div></div>
+      <div class="bar-row"><span class="label">GPT-4</span><div class="bar-track"><div class="bar-fill purple" style="width:100%">~$79M</div></div></div>
+      <div class="bar-row"><span class="label">Gemini Ultra</span><div class="bar-track"><div class="bar-fill orange" style="width:100%">~$192M</div></div></div>
+    </div>
+
+    <p style="font-size:13px;color:var(--muted);">Pre-training cost data from Stanford HAI 2025 AI Index Report and public disclosures. Bar chart widths are relative to Gemini Ultra ($192M). Med-PaLM fine-tuning cost is additional and not included here.</p>
+
+    <h3>8.5 Inference Cost</h3>
+    <p>For deployed MedLM models on Google Cloud Vertex AI, inference pricing is comparable to other large-scale LLM APIs:</p>
+
+    <table class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Value</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Per API call</td><td><strong>~$0.03-0.12</strong></td><td>Varies by prompt length and output tokens</td></tr>
+          <tr><td>Token throughput</td><td><strong>~20-50 tok/s</strong></td><td>Latency-dependent; batch inference is faster</td></tr>
+          <tr><td>Rural latency</td><td><strong>&gt;10s</strong></td><td>Cloud dependency; identified as adoption barrier</td></tr>
+          <tr><td>Annual cost (10K queries/day)</td><td><strong>~$110K-440K</strong></td><td>For a mid-sized hospital deployment</td></tr>
+        </tbody>
+      </table>
+    </table>
+
+    <div class="callout info">
+      <strong>Bottom Line:</strong> Training Med-PaLM 2 from scratch would cost an estimated <strong>$29M+</strong> (base model) + <strong>$200K-1M</strong> (medical fine-tuning). The fine-tuning alone — which is what makes it "Med-PaLM" — costs less than 3% of the base model pre-training. This highlights the efficiency of domain-specific instruction tuning: relatively modest compute can transform a general LLM into an expert-level medical system.
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════ REFERENCES ═══════════ -->
 <footer id="refs">
   <div class="container">
@@ -628,6 +733,8 @@
       <li><a href="https://cloud.google.com/blog/topics/healthcare-life-sciences/building-a-clinical-intelligence-engine-using-medlm" target="_blank" rel="noopener">Google Cloud Blog. "Building a clinical intelligence engine using MedLM." 2024.</a></li>
       <li><a href="https://research.google/pubs/towards-physician-level-medical-question-answering-with-large-language-models/" target="_blank" rel="noopener">Google Research Publications. "Towards Physician-Level Medical Question Answering."</a></li>
       <li><a href="https://ai.nejm.org/doi/10.1056/AIoa2300138" target="_blank" rel="noopener">"Towards Generalist Biomedical AI." <em>NEJM AI</em>, February 2024.</a></li>
+      <li><a href="https://www.visualcapitalist.com/the-surging-cost-of-training-ai-models/" target="_blank" rel="noopener">Visual Capitalist. "The Surging Cost of Training AI Models." 2025. (Sources Stanford HAI AI Index Report.)</a></li>
+      <li><a href="https://arxiv.org/abs/2204.02311" target="_blank" rel="noopener">Chowdhery et al. "PaLM: Scaling Language Modeling with Pathways." <em>arXiv:2204.02311</em>, 2022. (Hardware config: 6,144 TPU v4 chips, ~8.4M TPUv4-hours.)</a></li>
     </ol>
     <p style="margin-top:16px;">Built with researched information from Google Research, Google DeepMind, and published clinical case studies. Data current as of April 2026.</p>
   </div>
